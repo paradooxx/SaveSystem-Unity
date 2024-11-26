@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
@@ -12,7 +10,8 @@ public static class SaveSystem
     {
         GameSaveData gameSaveData = new GameSaveData(gameDataManager);
         string json = JsonUtility.ToJson(gameSaveData, true);
-
+        Debug.Log("Saved JSON: " + json);
+        Debug.Log(path);
         string encryptedJson = EncryptionUtility.Encrypt(json);
 
         File.WriteAllText(path, encryptedJson);
@@ -26,6 +25,7 @@ public static class SaveSystem
             {
                 string encryptedJson = File.ReadAllText(path);
                 string decryptedJson = EncryptionUtility.Decrypt(encryptedJson);
+                Debug.Log("Loaded JSON: " + encryptedJson);
                 GameSaveData gameSaveData = JsonUtility.FromJson<GameSaveData>(decryptedJson);
                 return gameSaveData;
             }

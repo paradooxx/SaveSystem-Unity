@@ -2,57 +2,49 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using UnityEngine;
 
 public static class EncryptionUtility
 {
-    private static string key = SystemInfo.deviceUniqueIdentifier;
-    public static string Encrypt(string source)
+    private static readonly string encryptionKey = KeyGenerator.GenerateKey();
+
+    public static string Encrypt(string plainText)
+    {
+        using (Aes aesAlg = Aes.Create())
         {
-            TripleDESCryptoServiceProvider desCryptoProvider = new TripleDESCryptoServiceProvider();
+            aesAlg.Key = Encoding.UTF8.GetBytes(encryptionKey);
+            aesAlg.IV = new byte[16];
 
-            byte[] byteBuff;
+            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-            try
+            using (MemoryStream msEncrypt = new MemoryStream())
             {
-                desCryptoProvider.Key = Encoding.UTF8.GetBytes(key);
-                desCryptoProvider.IV = UTF8Encoding.UTF8.GetBytes("ABCDEFGH");
-                byteBuff = Encoding.UTF8.GetBytes(source);
-
-                string iv = Convert.ToBase64String(desCryptoProvider.IV);
-                Console.WriteLine("iv: {0}", iv);
-
-                string encoded =
-                    Convert.ToBase64String(desCryptoProvider.CreateEncryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
-
-                return encoded;
+                using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+                {
+                    swEncrypt.Write(plainText);
+                }
+                return Convert.ToBase64String(msEncrypt.ToArray());
             }
-            catch (Exception except)
-            {
-                Console.WriteLine(except + "\n\n" + except.StackTrace);
-                return null;
-            }            
         }
+    }
 
-        public static string Decrypt(string encodedText)
+    public static string Decrypt(string cipherText)
+    {
+        using (Aes aesAlg = Aes.Create())
         {
-            TripleDESCryptoServiceProvider desCryptoProvider = new TripleDESCryptoServiceProvider();
+            aesAlg.Key = Encoding.UTF8.GetBytes(encryptionKey);
+            aesAlg.IV = new byte[16];
 
-            byte[] byteBuff;
+            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-            try
+            using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(cipherText)))
             {
-                desCryptoProvider.Key = Encoding.UTF8.GetBytes(key);
-                desCryptoProvider.IV = UTF8Encoding.UTF8.GetBytes("ABCDEFGH");
-                byteBuff = Convert.FromBase64String(encodedText);
-
-                string plaintext = Encoding.UTF8.GetString(desCryptoProvider.CreateDecryptor().TransformFinalBlock(byteBuff, 0, byteBuff.Length));
-                return plaintext;
-            } catch (Exception except) {
-                Console.WriteLine(except + "\n\n" + except.StackTrace);
-                return null;
+                using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+                {
+                    return srDecrypt.ReadToEnd();
+                }
             }
-
-
         }
+    }
 }

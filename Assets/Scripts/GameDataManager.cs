@@ -13,6 +13,8 @@ public class GameDataManager : MonoBehaviour
         if(Instance == null)
         {
             Instance = this;
+            // DontDestroyOnLoad(gameObject);
+            LoadGameData();
         }
         else
         {
@@ -29,7 +31,7 @@ public class GameDataManager : MonoBehaviour
         Data = gameSaveData.Data;
     }
 
-    private void SaveGameData()
+    public void SaveGameData()
     {
         SaveSystem.SaveData(this);
     }
