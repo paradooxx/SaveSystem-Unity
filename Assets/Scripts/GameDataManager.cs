@@ -5,8 +5,10 @@ public class GameDataManager : MonoBehaviour
     public static GameDataManager Instance;
 
     [SerializeField] private int data;
+    [SerializeField] private CustomData customData;
 
     public int Data { get => data; set { data = value; SaveGameData(); }}
+    public CustomData CustomData { get => customData; set { customData = value; SaveGameData(); } }
 
     private void Awake()
     {
@@ -14,7 +16,9 @@ public class GameDataManager : MonoBehaviour
         {
             Instance = this;
             // DontDestroyOnLoad(gameObject);
+            SaveGameData();
             LoadGameData();
+            // SaveSystem.DeleteSaveData();
         }
         else
         {
@@ -29,10 +33,19 @@ public class GameDataManager : MonoBehaviour
         if(gameSaveData == null) return;
 
         Data = gameSaveData.Data;
+        CustomData = gameSaveData.CustomData;
     }
 
     public void SaveGameData()
     {
         SaveSystem.SaveData(this);
     }
+}
+
+[System.Serializable]
+public class CustomData
+{
+    public int customInt;
+    public float customFloat;
+    public string customString;
 }

@@ -7,18 +7,20 @@ public class ShowData : MonoBehaviour
 
     private void Start()
     {
-        dataText.text = "Data: " + GameDataManager.Instance.Data;
+        dataText.text = "Data: " + GameDataManager.Instance.CustomData.customInt;
     }
 
     public void IncreaseData()
     {
-        GameDataManager.Instance.Data ++;
-        dataText.text = "Data: " + GameDataManager.Instance.Data;
+        GameDataManager.Instance.CustomData.customInt ++;
+        dataText.text = "Data: " + GameDataManager.Instance.CustomData.customInt;
+        GameDataManager.Instance.SaveGameData();
     }
 
     public void DecreaseData()
     {
-        GameDataManager.Instance.Data --;
-        dataText.text = "Data: " + GameDataManager.Instance.Data;
+        GameDataManager.Instance.CustomData.customInt --;
+        dataText.text = "Data: " + GameDataManager.Instance.CustomData.customInt;
+        GameDataManager.Instance.SaveGameData();
     }
 }
